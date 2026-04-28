@@ -1,8 +1,8 @@
 package com.logistics.item;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.logistics.item.infrastructure.repository.ItemJpaRepository;
-import com.logistics.item.infrastructure.repository.entity.ItemEntity;
+import com.logistics.item.application.port.ItemRepositoryPort;
+import com.logistics.item.domain.Item;
 import com.logistics.item.infrastructure.rest.dto.request.PatchItemRequestDTO;
 import com.logistics.item.infrastructure.rest.dto.request.PostItemRequestDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ class ItemApplicationTests {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private ItemJpaRepository itemJpaRepository;
+    private ItemRepositoryPort itemRepository;
 
 
     @BeforeAll
@@ -53,9 +53,9 @@ class ItemApplicationTests {
     @BeforeEach
     public void beforeEach() {
         log.info("Deleting items in database");
-        itemJpaRepository.deleteAll();
-        List<ItemEntity> data = EASY_RANDOM.objects(ItemEntity.class, 20).toList();
-        itemJpaRepository.saveAll(data.stream().peek(e -> e.setId(UUID.randomUUID().toString())).toList());
+        itemRepository.deleteAll();
+        List<Item> data = EASY_RANDOM.objects(Item.class, 20).toList();
+        itemRepository.saveAll(data);
     }
 
     @Test
@@ -66,7 +66,7 @@ class ItemApplicationTests {
 
     @Test
     void getAllItems_shouldReturn204NoContent() throws Exception {
-        itemJpaRepository.deleteAll();
+        itemRepository.deleteAll();
         mockMvc.perform(MockMvcRequestBuilders.get("/items"))
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
@@ -79,7 +79,7 @@ class ItemApplicationTests {
 
     @Test
     void getItemById_shouldReturn200IfFound() throws Exception {
-        String id = itemJpaRepository.findAll().getFirst().getId();
+        String id = itemRepository.getItems().getFirst().getId();
         mockMvc.perform(MockMvcRequestBuilders.get("/items/".concat(id)))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
@@ -111,7 +111,7 @@ class ItemApplicationTests {
 
     @Test
     void createItem_shouldReturn409IfDuplicated() throws Exception {
-        String existingItemName = itemJpaRepository.findAll().getFirst().getName();
+        String existingItemName = itemRepository.getItems().getFirst().getName();
 
         PostItemRequestDTO dto = PostItemRequestDTO.builder()
                 .name(existingItemName)
@@ -125,7 +125,7 @@ class ItemApplicationTests {
 
     @Test
     void deleteItem_shouldReturn204IfSuccessful() throws Exception {
-        String id = itemJpaRepository.findAll().stream().findFirst().get().getId();
+        String id = itemRepository.getItems().stream().findFirst().get().getId();
         mockMvc.perform(MockMvcRequestBuilders.delete("/items/".concat(id)))
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
@@ -144,7 +144,7 @@ class ItemApplicationTests {
 
     @Test
     void patchItem_shouldReturn204IfSuccessful() throws Exception {
-        String id = itemJpaRepository.findAll().stream().findFirst().get().getId();
+        String id = itemRepository.getItems().stream().findFirst().get().getId();
         PatchItemRequestDTO dto = PatchItemRequestDTO.builder()
                 .name("New name")
                 .build();
@@ -168,7 +168,7 @@ class ItemApplicationTests {
 
     @Test
     void patchItem_shouldReturn422IfInvalidInput() throws Exception {
-        String id = itemJpaRepository.findAll().stream().findFirst().get().getId();
+        String id = itemRepository.getItems().stream().findFirst().get().getId();
         PatchItemRequestDTO dto = PatchItemRequestDTO.builder()
                 .name("")
                 .build();

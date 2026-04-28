@@ -1,4 +1,4 @@
-package com.logistics.item.infrastructure.repository.entity;
+package com.logistics.item.infrastructure.persistence.entity.jpa;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder
 @NoArgsConstructor
-public class ItemEntity {
+public class ItemJpaEntity {
     @Id
     private String id;
     @Column(nullable = false, unique = true)

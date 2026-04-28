@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: item
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration
+  data:
+    jpa:
+      repositories:
+        enabled: false
+    mongodb:
+      database: items
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 6.0.5
+server:
+  port: 8081

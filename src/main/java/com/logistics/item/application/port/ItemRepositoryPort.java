@@ -9,8 +9,10 @@ public interface ItemRepositoryPort {
     List<Item> getItems();
     Optional<Item> getItemById(String id);
     void deleteItem(String id);
+    void deleteAll();
     void updateItem(Item item);
     String createItem(Item item);
+    List<String> saveAll(List<Item> item);
 
     Optional<Item> getItemByName(String name);
 }
