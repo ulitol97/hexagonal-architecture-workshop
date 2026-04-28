@@ -7,9 +7,6 @@ import com.logistics.item.infrastructure.rest.dto.request.PatchItemRequestDTO;
 import com.logistics.item.infrastructure.rest.dto.request.PostItemRequestDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
-import org.jeasy.random.EasyRandom;
-import org.jeasy.random.EasyRandomParameters;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +22,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 @SpringBootTest
 @AutoConfigureDataMongo
@@ -33,7 +31,6 @@ import java.util.UUID;
 @Slf4j
 class ItemApplicationTests {
 
-    static EasyRandom EASY_RANDOM;
     @Autowired
     private MockMvc mockMvc;
 
@@ -43,20 +40,12 @@ class ItemApplicationTests {
     @Autowired
     private ItemRepositoryPort itemRepository;
 
-
-    @BeforeAll
-    public static void BeforeAll() {
-        EasyRandomParameters parameters = new EasyRandomParameters();
-        parameters.stringLengthRange(10, 24);
-        parameters.collectionSizeRange(5, 10);
-        EASY_RANDOM = new EasyRandom(parameters);
-    }
-
     @BeforeEach
     public void beforeEach() {
         log.info("Deleting items in database");
         itemRepository.deleteAll();
-        List<Item> data = EASY_RANDOM.objects(Item.class, 20).toList();
+
+        List<Item> data = generateTestItems(20);
         itemRepository.saveAll(data);
     }
 
@@ -178,5 +167,14 @@ class ItemApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(MockMvcResultMatchers.status().isUnprocessableEntity());
+    }
+
+    private static List<Item> generateTestItems(int size){
+      return IntStream.range(0, size).boxed()
+              .map(i -> {
+                  String id = UUID.randomUUID().toString();
+                  return Item.builder().id(id).name("TEST-ITEM-" + id).build();
+              })
+              .toList();
     }
 }
