@@ -27,7 +27,8 @@ import java.util.stream.IntStream;
 @SpringBootTest
 @AutoConfigureDataMongo
 @AutoConfigureMockMvc
-@ActiveProfiles("h2")
+//@ActiveProfiles("h2")
+@ActiveProfiles("mongo")
 @Slf4j
 class ItemApplicationTests {
 
